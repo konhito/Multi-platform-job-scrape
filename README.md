@@ -1,4 +1,4 @@
-# Job Ingestion Assessment
+# Job Ingestion
 
 This project demonstrates a resilient job-ingestion pipeline: scheduled source runs, discovery/detail extraction, normalization, deduplication, source health, and an operations dashboard.
 

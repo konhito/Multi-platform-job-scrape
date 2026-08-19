@@ -14,8 +14,8 @@ const asIso = (value: unknown) => value instanceof Date ? value.toISOString() : 
 export async function listJobs(filters: { source?: string; search?: string; country?: string } = {}): Promise<Job[]> {
   const database = sql;
   const rows = !database ? null : filters.source
-    ? await database`select id, source, external_id, canonical_url, content_hash, title, company, company_logo_url, location, country, category, job_type, salary, description, posted_at, fetched_at, active from jobs where active = true and source = ${filters.source} order by posted_at desc nulls last limit 100`
-    : await database`select id, source, external_id, canonical_url, content_hash, title, company, company_logo_url, location, country, category, job_type, salary, description, posted_at, fetched_at, active from jobs where active = true order by posted_at desc nulls last limit 100`;
+    ? await database`select id, source, external_id, canonical_url, content_hash, title, company, company_logo_url, location, country, category, job_type, salary, description, posted_at, fetched_at, active from jobs where active = true and source = ${filters.source} order by posted_at desc nulls last`
+    : await database`select id, source, external_id, canonical_url, content_hash, title, company, company_logo_url, location, country, category, job_type, salary, description, posted_at, fetched_at, active from jobs where active = true order by posted_at desc nulls last`;
   const all = !rows
     ? getRuntime()?.jobs || []
     : rows.map((row) => ({

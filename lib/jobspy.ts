@@ -11,11 +11,21 @@ type Listing = { url: string; title: string; company: string; company_logo: stri
 const iso = (value: string) => value && !Number.isNaN(Date.parse(value)) ? new Date(value).toISOString() : null;
 const salary = (job: Listing) => [job.min_amount, job.max_amount].filter(Boolean).join(" - ") + (job.currency ? ` ${job.currency}` : "") + (job.interval ? ` / ${job.interval}` : "") || null;
 
-export async function fetchJobSpyJobs(source: string, term = "software engineer", location = "India", lookbackSeconds = 86_400): Promise<Job[]> {
+export async function fetchJobSpyJobs(source: string, term = "software engineer", location = "India", lookbackSeconds = 86_400, workerUrl?: string): Promise<Job[]> {
   if (!sources.has(source)) throw new Error("Unsupported JobSpy source.");
   const hoursOld = Math.max(1, Math.round(lookbackSeconds / 3_600));
-  const { stdout } = await run(process.env.PYTHON_BIN || "python", [resolve(process.cwd(), "scripts", "jobspy_worker.py"), source, term, location, String(hoursOld)], { timeout: 90_000, maxBuffer: 2_000_000 });
-  const listings = JSON.parse(stdout) as Listing[];
+  let listings: Listing[];
+  if (process.env.VERCEL) {
+    const endpoint = new URL(workerUrl || `https://${process.env.VERCEL_URL}/api/jobspy`);
+    endpoint.search = new URLSearchParams({ source, keywords: term, location, hoursOld: String(hoursOld) }).toString();
+    const response = await fetch(endpoint, { cache: "no-store", signal: AbortSignal.timeout(90_000) });
+    const body = await response.json() as Listing[] | { error?: string };
+    if (!response.ok) throw new Error((body as { error?: string }).error || `${source} worker returned ${response.status}.`);
+    listings = body as Listing[];
+  } else {
+    const { stdout } = await run(process.env.PYTHON_BIN || "python", [resolve(process.cwd(), "scripts", "jobspy_worker.py"), source, term, location, String(hoursOld)], { timeout: 90_000, maxBuffer: 2_000_000 });
+    listings = JSON.parse(stdout) as Listing[];
+  }
   if (!Array.isArray(listings) || !listings.length) throw new Error(`${source} returned no jobs.`);
   const fetchedAt = new Date().toISOString();
   return listings.map((job) => {

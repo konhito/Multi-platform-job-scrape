@@ -91,7 +91,7 @@ async function syncSource(source: string, fetchJobs: () => Promise<Job[]>): Prom
 
 export const syncRemotive = (term?: string) => syncSource("remotive", () => fetchRemotiveJobs(20, term));
 export const syncLinkedIn = (term?: string, location?: string, lookbackSeconds = 86_400) => syncSource("linkedin", () => fetchLinkedInJobs(term || "software engineer", { location: location || "India", id: location === "India" || !location ? "102713980" : "" }, lookbackSeconds));
-export const syncJobSpy = (source: "indeed" | "glassdoor" | "google", term?: string, lookbackSeconds = 86_400) => syncSource(source, () => fetchJobSpyJobs(source, term, "India", lookbackSeconds));
+export const syncJobSpy = (source: "indeed" | "glassdoor" | "google", term?: string, lookbackSeconds = 86_400, workerUrl?: string) => syncSource(source, () => fetchJobSpyJobs(source, term, "India", lookbackSeconds, workerUrl));
 export const syncWellfound = (term?: string) => syncSource("wellfound", () => fetchWellfoundJobs(term));
 
 export async function queueSourceFailure(source: "linkedin", statusCode: 403 | 404 | 429): Promise<RetryQueueItem> {

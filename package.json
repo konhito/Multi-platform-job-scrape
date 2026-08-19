@@ -1,0 +1,23 @@
+{
+  "name": "job-ingestion-assessment",
+  "license": "AGPL-3.0-or-later",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "db:migrate": "node scripts/migrate.mjs",
+    "test:source": "node scripts/verify-remotive.mjs"
+  },
+  "dependencies": {
+    "@neondatabase/serverless": "latest",
+    "next": "latest",
+    "react": "latest",
+    "react-dom": "latest"
+  },
+  "devDependencies": {
+    "@types/node": "latest",
+    "@types/react": "latest",
+    "typescript": "latest"
+  }
+}
